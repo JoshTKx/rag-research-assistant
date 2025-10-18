@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment
+.env
+
+# ChromaDB
+my_vectordb/
+*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
