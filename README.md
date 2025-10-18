@@ -22,8 +22,11 @@ A system that ingests PDF documents and answers questions about them using RAG w
 
 ## Progress
 
-- [ ] Week 1 Day 1: Learning embeddings & vector databases
-- [ ] Week 1 Day 2: Document processing & chunking
+- - [x] Week 1 Day 1: ✅ **COMPLETED** - Embeddings & vector databases
+  - Deep understanding of transformers and attention mechanisms
+  - Production-ready code with error handling and logging
+  - Deterministic document IDs using SHA-256 hashing
+- [ ] Week 1 Day 2: 🎯 **NEXT** - Document processing & chunking
 - [ ] Week 1 Day 3: Building retrieval pipeline
 - [ ] Week 1 Day 4: Error handling & logging
 - [ ] Week 1 Day 5: Integration & testing
