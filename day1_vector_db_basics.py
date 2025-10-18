@@ -1,6 +1,8 @@
 
 import chromadb
 import uuid
+import hashlib
+import logging
 
 # TODO: Your task is to:
 # 1. Create a ChromaDB client
@@ -33,7 +35,7 @@ result = collection.query(
     query_texts = ["Tell me about animals", "Tell me about programming"],
     n_results = 1
 )
-print(result)
+# print(result)
 
 result_all = collection.query(
     query_texts=["Tell me about animals"],
@@ -46,25 +48,58 @@ weird_result = collection.query(
 )
 
 
-def add_documents(collection, docs):
+def add_documents(collection, docs, metadatas):
     """Add multiple documents with auto-generated IDs"""
-    collection.add(
-        ids = str(uuid.uuid4() for _ in docs),
-        documents = docs
-    )
+    ids = []
+    for doc, meta in zip(docs,metadatas):
+        unique_string = f"{meta.get('source', '')}-{doc}"
+        doc_id = hashlib.sha256(unique_string.encode()).hexdigest()
+        ids.append(doc_id)
 
-def search_with_threshold(collection, query, threshold=1.0):
+    try:
+        collection.upsert(
+            ids = ids,
+            documents = docs,
+            metadatas =metadatas
+        )
+        logging.info(f"Successfully upserted {len(ids)} documents.")
+    except Exception as e:
+        logging.error(f"Failed to upsert documents: {e}")
+        return False
+    return True
+
+def search_with_threshold(collection, query, metadata_filter, threshold=1.0, n_results = 2):
     """Return only results below distance threshold"""
-    result = collection.query(
-        query_texts = query,
-        n_results = 2
-    )
-    return [
-        doc 
-        for doc, dist in zip(result['documents'], result['distances'])
-        if dist <= threshold
-    ]
+    try:
+        results = collection.query(
+            query = [query],
+            n_results = n_results,
+            where = metadata_filter
+        )
+        
+        if not results or not results.documents[0]:
+            return []
+        
+        return [
+            {'document': doc, 'distance': dist}
+            for doc, dist in zip(results['documents'][0],results['distance'][0])
+            if dist <= threshold
+        ]
+
+    except Exception as e:
+        logging.error(f"Failed to query collection: {e}")
+        return []
     
+results = search_with_threshold(
+    collection, 
+    query="Tell me about animals",
+    threshold=1.5,
+    n_results=5
+)
+
+print(f"\nResults under threshold 1.5:")
+for r in results:
+    print(f"  {r['distance']:.3f}: {r['document']}")
     
 
 # print(f"\n'Pizza' query returned: {weird_result['documents'][0]}")
