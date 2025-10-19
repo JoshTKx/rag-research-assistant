@@ -97,3 +97,94 @@ this can be taken from the metadata
 ### Questions I still have:
 - 
 -
+
+# Day 2: Document Processing & Chunking
+
+## Morning Research: PDF Processing
+
+### Why PDF extraction is tricky:
+Could be a image of the page, instead of the actual content info. PDF stores layout instructions instead of the actual text. Its storing information to output the text, like drawing individual characters at a certain coordinate instead of containing the text info. Sometimes its also in a diff format, instead of something more standard like unicode. Hard to differentiate btw different sections like footnotes and headers or hyperlinks and metadata. So it becomes guesswork instead of actually knowing
+
+### What pypdf can do:
+Extract information aboutt fonts, encoding, character distances and similar topics. It wont confuse similar characters which OCR might, and can read rare characters.(Does this mean pypdf is only able to read texts from a pdf, not tables or images? If so how does it manage to, or even just overcome the challenges of text extraction from pdfs)
+
+### What pypdf CANNOT do well:
+Cant extract text from images, as its not OCR software
+
+### Key pypdf methods I'll need:
+- PdfReader: Object used to read the pdf, takes in the file object, a option to warn user of all problems and a password(I assume only for encrypted files). Can be used to convert the file to a list of PageObjects, which we can perform further actions on. Basically a collection of all the pages.
+- extract_text():locates all text drawing commands to extract the text within the page(Whats the diff from get_contents())
+- 
+
+## Day 2 Morning: PDF Extraction Deep Dive
+
+### How pypdf Overcomes PDF Challenges:
+
+1. **Coordinate-based text → Readable text**
+   - Reads character drawing commands
+   - Orders by position (top→bottom, left→right)
+   - Reconstructs sentences by detecting spacing
+
+2. **Different encodings → Unicode**
+   - Built-in encoding tables
+   - Maps PDF character codes to standard Unicode
+   - Handles most common formats automatically
+
+3. **Limitations it CANNOT overcome:**
+   - Multi-column layouts (might scramble order)
+   - Tables (extracts as unstructured text)
+   - Images with text (needs OCR)
+   - Complex layouts (textbooks, magazines)
+
+### Methods Clarified:
+
+**PdfReader**
+- Creates object to read PDF file
+- Converts PDF into list of PageObjects
+- Usage: `reader = PdfReader("file.pdf")`
+
+**extract_text()** ✅ Use this!
+- Returns human-readable text
+- Handles encoding and spacing
+- Perfect for RAG systems
+
+**get_contents()** ❌ Avoid unless debugging
+- Returns raw PDF commands
+- Not human-readable
+- For advanced PDF manipulation only
+
+### For My RAG System:
+- pypdf text extraction is sufficient
+- Tables will be unstructured (but LLMs can still understand!)
+- Multi-column papers might have weird ordering (test and see)
+- If I need OCR later, I'd add Tesseract/pytesseract
+
+
+## Chunking Strategy Analysis
+
+### Simple Fixed-Size (500 chars, 50 overlap):
+**Pros:**
+- Predictable chunk sizes
+- Good for consistent embedding dimensions
+- Ensures coverage with overlap
+
+**Cons:**
+- Might split mid-thought
+- Example: "ty reduction" at start of chunk 3
+- Less semantic coherence
+
+### Paragraph-Based:
+**Pros:**
+- Semantically complete thoughts
+- Example: Each ML type is in its own chunk
+- Better for question answering (complete context)
+
+**Cons:**
+- Varying sizes (32 to 230 chars)
+- Small chunks might lack context
+- Large paragraphs might exceed ideal size
+
+### My Conclusion:
+For RAG, paragraph chunking seems better because:
+- It captures the semantic meaning of each chunk
+- Paragraph is better, can gradually finetune size, from para to new line to sentence to words
