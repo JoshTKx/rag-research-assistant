@@ -114,20 +114,7 @@ def chunk_text_simple(text, chunk_size=500, overlap=50):
     Returns:
         list: List of text chunks
         
-    TODO:
-    - Split text into chunks of approximately chunk_size
-    - Each chunk should overlap with previous by 'overlap' characters
-    - Don't split in the middle of words
-    - Handle edge cases (text shorter than chunk_size)
-    
-    Strategy:
-    1. Start at position 0
-    2. Move forward by (chunk_size - overlap) each time
-    3. Extract chunk from current position to current + chunk_size
-    4. Make sure you don't split words (find space boundaries)
     """
-    # YOUR CODE HERE
-    # Hint: Use a while loop and track your position in the text
 
     chunks = []
     start  = 0
@@ -144,7 +131,7 @@ def chunk_text_simple(text, chunk_size=500, overlap=50):
         start = end - overlap
 
         space_pos = text.find(" ", start)
-        if space_pos != 1 and space_pos < start + overlap:
+        if space_pos != -1 and space_pos < start + overlap:
             start = space_pos + 1
         
 
@@ -162,10 +149,6 @@ def chunk_by_paragraphs(text):
     Returns:
         list: List of paragraphs
         
-    TODO:
-    - Split on double newlines (\n\n)
-    - Remove empty paragraphs
-    - Strip whitespace from each paragraph
     """
     # YOUR CODE HERE
     paragraphs = text.split("\n\n")
@@ -173,59 +156,258 @@ def chunk_by_paragraphs(text):
 
     return paragraphs
 
-# Test chunking
+
+
+from pypdf import PdfReader
+import os
+
+def extract_text_from_pdf(pdf_path):
+    """
+    Extract text from PDF file
+    
+    Args:
+        pdf_path: Path to PDF file
+        
+    Returns:
+        dict: {
+            'text': full text from all pages combined,
+            'pages': list of text from each page,
+            'num_pages': number of pages,
+            'metadata': PDF metadata (title, author, etc.)
+        }
+    """
+    try:
+        logger.info(f"Reading text from {pdf_path}")
+        reader = PdfReader(stream= pdf_path)
+
+        pages = []
+
+        for page in reader.pages:
+            pages.append(page.extract_text())
+
+        info = {
+            "num_pages": len(reader.pages),
+            "metadata": reader.metadata,
+            "pages": pages,
+            "text": "\n\n".join(pages)
+        }
+
+        logger.info(f"Successfully extracted {len(pages)} pages")
+        return info
+        
+    
+    except FileNotFoundError:
+        logger.error(f"File not Found: {pdf_path}")
+        return {}
+    except Exception as e:
+        logger.error(f"Failed to extract text: {e}")
+        return {}
+
+
+def chunk_pdf_by_pages(pdf_path, chunk_size=500, overlap=50):
+    """
+    Extract and chunk PDF, tracking which page each chunk came from
+    
+    Args:
+        pdf_path: Path to PDF
+        chunk_size: Size of chunks
+        overlap: Overlap between chunks
+        
+    Returns:
+        list: List of dicts with 'text', 'page_num', 'chunk_id', 'source'
+    """
+    # YOUR CODE HERE
+    source  = os.path.basename(pdf_path)
+    pdf_data = extract_text_from_pdf(pdf_path)
+
+    if not pdf_data:
+        logger.error(f"PDF extraction failed")
+        return []
+    
+    pdf_info = []
+    for pg_num, page in enumerate(pdf_data["pages"], start= 1):
+        paragraphs = chunk_text_simple(page, chunk_size, overlap)
+
+        for chunk_id, chunk in enumerate(paragraphs):
+            chunk_info = {
+                "text" : chunk,
+                "page_num": pg_num,
+                "chunk_id" :  f"page{pg_num}_chunk{chunk_id}",
+                "source" : source
+            }
+            pdf_info.append(chunk_info)
+
+    logger.info(f"Created {len(pdf_info)} chunks from {pdf_data['num_pages']} pages")
+    return pdf_info
+
+import chromadb
+import hashlib
+
+def process_and_store_pdf(pdf_path, collection, chunk_size=500, overlap=100):
+    """
+    Complete pipeline: PDF → Chunks → ChromaDB
+    
+    Args:
+        pdf_path: Path to PDF
+        collection: ChromaDB collection
+        chunk_size: Not used if using paragraph chunking
+        overlap: Not used if using paragraph chunking
+        
+    Returns:
+        int: Number of chunks stored
+        
+    TODO:
+    - Get chunks using chunk_pdf_by_pages()
+    - For each chunk:
+        - Generate deterministic ID (hash of source + page + text)
+        - Prepare for ChromaDB (lists of ids, documents, metadatas)
+    - Store in ChromaDB using collection.upsert()
+    - Return count
+    
+    Hints:
+    - Create lists: ids = [], documents = [], metadatas = []
+    - For each chunk, append to these lists
+    - ID generation: hashlib.sha256(f"{source}-{page}-{text}".encode()).hexdigest()
+    - Metadata should be dict without 'text' key
+    - collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
+    """
+    # YOUR CODE HERE
+    chunks = chunk_pdf_by_pages(pdf_path, chunk_size, overlap)
+
+    if not chunks:
+        logging.warning("No chunks to store")
+        return 0
+
+    ids = []
+    documents = []
+    metadatas = []
+
+    for chunk in chunks:
+
+        unique_string = f"{chunk["source"]}-{chunk["page_num"]}-{chunk["text"][:50]}"
+        doc_id = hashlib.sha256(unique_string.encode()).hexdigest()
+
+        ids.append(doc_id)
+        meta = {
+            "page_num": chunk["page_num"],
+            "chunk_id" : chunk["chunk_id"],
+            "source" : chunk["source"]
+        }
+        metadatas.append(meta)
+        documents.append(chunk["text"])
+
+    try:
+        collection.upsert(
+            ids = ids,
+            documents = documents,
+            metadatas = metadatas
+        )
+        logger.info(f"Successfully stored {len(chunks)} chunks")
+        return len(chunks)
+
+    except Exception as e:
+        logger.error(f"Failed to store chunks: {e}")
+        return 0
+
+
+
+# Test your PDF functions
 if __name__ == "__main__":
-    # ... previous code to load file and show stats ...
-    file_path = "test_document.txt"
+    # ... previous tests ...
     
-    # Load the file
-    text = load_text_file(file_path)
+    pdf_path = "test_document.pdf"
     
-    # Get statistics
-    stats = get_text_stats(text)
-    
-    # Print results
-    print(f"\nDocument Statistics:")
-    print(f"Characters: {stats['characters']}")
-    print(f"Words: {stats['words']}")
-    print(f"Lines: {stats['lines']}")
-    
-    # Print first 200 characters
-    print(f"\nFirst 200 characters:")
-    print(text[:200])
-    # Test simple chunking
     print("\n" + "="*60)
-    print("SIMPLE CHUNKING (500 chars, 50 overlap)")
+    print("PDF EXTRACTION TEST")
     print("="*60)
     
-    # TODO: Call chunk_text_simple with text, chunk_size=500, overlap=50
-    # TODO: Print total number of chunks
-    # TODO: For each chunk, print:
-    #       - Chunk number
-    #       - Chunk length
-    #       - First 100 characters (or full chunk if shorter)
-    chunks = chunk_text_simple(text)
-    print(f"Total Chunks: {len(chunks)}")
-    for i,chunk in enumerate(chunks):
-        print(f"Chunk Number: {i}\n")
-        print(f"Chunk Length: {len(chunk)}\n")
-        print(f"Chunk Snippet: {chunk[:100]}\n")
-
-
+    pdf_data = extract_text_from_pdf(pdf_path)
     
-    # Test paragraph chunking
+    if pdf_data:
+        print(f"\n✅ PDF Statistics:")
+        print(f"  Pages: {pdf_data['num_pages']}")
+        print(f"  Total characters: {len(pdf_data['text'])}")
+        print(f"  Metadata: {pdf_data['metadata']}")
+        print(f"\n  First page preview (200 chars):")
+        print(f"  {pdf_data['pages'][0][:200]}...")
+    else:
+        print("❌ Failed to extract PDF")
+    
     print("\n" + "="*60)
-    print("PARAGRAPH CHUNKING")
+    print("PDF CHUNKING TEST")
     print("="*60)
     
-    # TODO: Call chunk_by_paragraphs
-    # TODO: Print total number of paragraphs
-    # TODO: For each paragraph, print:
-    #       - Paragraph number
-    #       - Paragraph length
-    #       - First 100 characters
-    paragraphs = chunk_by_paragraphs(text)
-    for i,paragraph in enumerate(paragraphs):
-        print(f"Para Number: {i}\n")
-        print(f"Para Length: {len(paragraph)}\n")
-        print(f"Para Snippet: {paragraph[:100]}\n")
+    chunks = chunk_pdf_by_pages(pdf_path)
+    
+    print(f"\n✅ Total chunks: {len(chunks)}")
+    print(f"\nFirst 3 chunks:")
+    
+    for chunk in chunks[:3]:
+        print(f"\n  📄 {chunk['source']} | Page {chunk['page_num']} | {chunk['chunk_id']}")
+        print(f"     Text ({len(chunk['text'])} chars): {chunk['text'][:100]}...")
+
+    print("\n" + "="*60)
+    print("COMPLETE PIPELINE: PDF → ChromaDB")
+    print("="*60)
+    
+    # Create ChromaDB
+    client = chromadb.Client()
+    collection = client.create_collection(name="ml_documents")
+    
+    # Process and store
+    num_stored = process_and_store_pdf(pdf_path, collection)
+    print(f"\n✅ Stored {num_stored} chunks in database")
+    
+    # Test retrieval
+    print("\n" + "="*60)
+    print("RETRIEVAL TEST")
+    print("="*60)
+    
+    queries = [
+        "What is Total Defence?",
+        "What is Singapore's defence strategy?",
+        "Tell me about 4th Industrial Revolution in Singapore"
+    ]
+    
+    for query in queries:
+        print(f"\n🔍 Query: '{query}'")
+        results = collection.query(
+            query_texts=[query],
+            n_results=2
+        )
+        
+        for i, (doc, dist, meta) in enumerate(zip(
+            results['documents'][0],
+            results['distances'][0],
+            results['metadatas'][0]
+        ), 1):
+            print(f"\n  Result {i} (distance: {dist:.3f}):")
+            print(f"  📄 {meta['source']} | Page {meta['page_num']} | {meta['chunk_id']}")
+            print(f"  📝 {doc[:150]}...")
+
+
+    # Add this to your test section:
+    print("\n" + "="*60)
+    print("TESTING WITH RELEVANT QUERIES")
+    print("="*60)
+
+    relevant_queries = [
+        "What is Total Defence?",
+        "Singapore's defence strategy",
+        "4th Industrial Revolution technologies"
+    ]
+
+    for query in relevant_queries:
+        print(f"\n🔍 Query: '{query}'")
+        results = collection.query(
+            query_texts=[query],
+            n_results=1
+        )
+        
+        dist = results['distances'][0][0]
+        doc = results['documents'][0][0]
+        meta = results['metadatas'][0][0]
+        
+        print(f"  Distance: {dist:.3f} {'✅ Good match!' if dist < 1.0 else '⚠️ Loose match'}")
+        print(f"  📄 {meta['source']} | Page {meta['page_num']}")
+        print(f"  📝 {doc[:200]}...")

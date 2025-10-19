@@ -188,3 +188,42 @@ Cant extract text from images, as its not OCR software
 For RAG, paragraph chunking seems better because:
 - It captures the semantic meaning of each chunk
 - Paragraph is better, can gradually finetune size, from para to new line to sentence to words
+
+
+## Day 2 Complete ✅
+
+### What I Built:
+- Complete document processing pipeline
+- PDF extraction with pypdf (22 pages, 249 chunks)
+- Metadata tracking (source, page, chunk_id)
+- Full integration with ChromaDB
+- Working retrieval with citations
+
+### Key Discoveries:
+
+1. **Paragraph chunking > Fixed chunking**
+   - Preserves semantic meaning
+   - Better for RAG responses
+
+2. **Distance scores indicate relevance**
+   - High distances (>1.2) = document doesn't contain relevant info
+   - This is GOOD - system correctly identifies poor matches
+   - With relevant queries, distances would be lower
+
+3. **Real PDFs are messy**
+   - Academic papers have headers, footers, formatting
+   - pypdf does its best but text isn't perfect
+   - Chunking strategy helps smooth this out
+
+### Production Insights:
+- Always check distances to validate retrieval quality
+- Need query-document matching for good results
+- Metadata is essential for citations
+- Deterministic IDs prevent duplicates
+
+### Challenges Faced:
+- Understanding dict structure from extract_text_from_pdf()
+- Looping over the right data structure
+- Realized queries need to match document content
+
+### Ready for Day 3: Building the Q&A System! ✅
