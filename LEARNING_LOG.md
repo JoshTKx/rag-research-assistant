@@ -227,3 +227,57 @@ For RAG, paragraph chunking seems better because:
 - Realized queries need to match document content
 
 ### Ready for Day 3: Building the Q&A System! ✅
+
+
+## Day 3: RAG Architecture (Corrected Understanding)
+
+### The RAG Flow (corrected):
+1. User asks a question
+2. **Vector DB (ChromaDB)** searches for relevant chunks
+3. Retrieved chunks become "context"
+4. Build prompt: "Use this context: [chunks] to answer: [question]"
+5. **LLM (Gemini)** generates answer based on context
+6. Return answer with source citations
+
+**Key insight:** LLM and database are SEPARATE. LLM has no memory - we give it context in every prompt.
+
+### Why we need RAG:
+1. **Knowledge cutoff**: LLMs don't know about recent/private documents
+2. **Hallucinations**: LLMs make things up; RAG provides real sources
+3. **Verifiability**: Users can check sources (page numbers)
+4. **Private data**: Company docs, research papers not in training data
+
+Example: My Singapore defence PDF (2024) isn't in Gemini's training data!
+
+### Key prompt engineering principles for RAG:
+1. **Be explicit**: "Answer ONLY using the provided context"
+2. **Handle unknowns**: "If context doesn't contain answer, say 'I don't know'"
+3. **Request citations**: "Cite the source for your answer"
+4. **Clear structure**: Separate context from question clearly
+
+### Gemini vs ChatGPT APIs:
+
+**Gemini (what I'm using):**
+```python
+model = genai.GenerativeModel(
+    'gemini-1.5-flash',
+    system_instruction="Instructions here"
+)
+response = model.generate_content("User question")
+```
+
+**ChatGPT (for later):**
+```python
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "Instructions"},
+        {"role": "user", "content": "Question"}
+    ]
+)
+```
+
+### Questions resolved:
+- ✅ Understood: LLM and DB are separate components
+- ✅ Understood: Basic RAG is one-pass, not a loop
+- ✅ Understood: We control what LLM sees via the prompt
