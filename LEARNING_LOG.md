@@ -281,3 +281,46 @@ response = client.chat.completions.create(
 - ✅ Understood: LLM and DB are separate components
 - ✅ Understood: Basic RAG is one-pass, not a loop
 - ✅ Understood: We control what LLM sees via the prompt
+
+
+## Day 3: RAG Query Pipeline Complete ✅
+
+### What I Built:
+- Complete RAG pipeline: Retrieve → Format → Generate
+- Integrated Gemini 2.5 Flash for answer generation
+- Source citation with page numbers
+- Proper error handling and logging
+
+### Test Results Analysis:
+
+**Question 1: "What is Total Defence?"**
+- Retrieved 3 chunks (Pages 17, 18, 3)
+- Generated comprehensive answer ✅
+- Used multiple sources correctly ✅
+
+**Question 2: "What are Singapore's defence strategies?"**
+- Retrieved 1 primary source (Page 3)
+- Direct, accurate answer ✅
+
+**Question 3: "Tell me about 4th Industrial Revolution"**
+- Retrieved chunks with high distances (>1.4)
+- LLM correctly said "not enough information" ✅
+- **This proves the system doesn't hallucinate!**
+
+### Key Insights:
+
+1. **Distance matters**: High distances (>1.2) = weak matches
+2. **Prompt engineering works**: Explicit instructions prevent hallucinations
+3. **Source attribution**: Users can verify answers by checking pages
+4. **Graceful degradation**: System admits when it doesn't know
+
+### Code Quality:
+- Clean separation of concerns (retrieve, format, generate)
+- Good error handling with try/except
+- Comprehensive logging for debugging
+- Helper functions for formatting
+
+### What Could Be Improved:
+- Add distance threshold filtering
+- Sort sources by page number
+- Could add chunk selection logic (pick best chunks, not just top 3)
