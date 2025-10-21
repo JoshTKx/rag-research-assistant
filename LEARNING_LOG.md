@@ -324,3 +324,80 @@ response = client.chat.completions.create(
 - Add distance threshold filtering
 - Sort sources by page number
 - Could add chunk selection logic (pick best chunks, not just top 3)
+
+
+## Day 3 Afternoon: FastAPI Wrapper
+
+### What is FastAPI?
+A way to build frameworks to allow different software applications to interact with one another
+
+### Key Concepts:
+- Route/Endpoint: It is a location on your system that the api can monitor, where data can be stored and retrievd
+- Path Operation: 
+    GET: retrieves info from the endpoint
+    POST: Stores information at that endpoint
+    DELETE: Remove information from the endpoint
+- Request Body: A Json which is structured like a python dictionary
+- Response Model: not too sure
+
+### Why FastAPI for this project?
+- Not too sure
+
+
+## Day 3 Afternoon: FastAPI Wrapper
+
+### What is FastAPI?
+A modern Python web framework for building APIs. It allows me to create HTTP 
+endpoints that other applications can call to use my RAG system. Like building 
+a restaurant menu - I define what requests I accept (endpoints) and what I 
+serve back (responses).
+
+### Key Concepts:
+
+**Endpoint/Route:**
+- A URL path where the API listens (e.g., /query, /upload)
+- NOT where data is stored - just an address for operations
+- Example: POST /query means "send questions to this address"
+
+**HTTP Methods (Path Operations):**
+- GET: Retrieve/read data (list documents, health check)
+- POST: Create/process data (upload file, ask question)
+- DELETE: Remove data (delete document)
+- PUT/PATCH: Update data (less common in our RAG system)
+
+**Request Body:**
+- JSON data sent by the client
+- FastAPI auto-converts to Python objects
+- Example: {"question": "What is AI?", "n_results": 3}
+
+**Response Model:**
+- Pydantic model defining structure of what API returns
+- Provides automatic validation and documentation
+- Example: QueryResponse(answer="...", sources=["..."])
+
+### Why FastAPI for RAG project?
+1. **Fast development**: Auto-docs, less boilerplate
+2. **Production-ready**: Built-in validation, async support
+3. **Perfect for AI**: Easy file uploads, JSON handling
+4. **Industry standard**: Used by major tech companies
+5. **Makes me employable**: Shows modern Python skills
+
+### API Architecture:
+```
+Client (Browser/App)
+    ↓ HTTP Request
+FastAPI Server (my code)
+    ↓ Calls
+RAG System (my functions)
+    ↓ Queries
+ChromaDB (vector database)
+    ↓ Returns chunks
+Back through chain → JSON response
+```
+
+### My API Endpoints:
+- GET /health → Check if API is running
+- POST /query → Ask questions (main feature!)
+- POST /upload → Upload PDF documents
+- GET /documents → List all documents
+- DELETE /document/{name} → Remove document

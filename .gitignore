@@ -19,3 +19,4 @@ my_vectordb/
 
 # OS
 .DS_Store
+chroma_db/
