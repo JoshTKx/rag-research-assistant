@@ -1,40 +1,55 @@
-# Research Assistant RAG System
+# RAG Research Assistant
 
-A personal learning project to build a terminal-based Retrieval-Augmented Generation (RAG) system from first principles.
+A production-ready Retrieval-Augmented Generation (RAG) system for document Q&A.
 
-## Learning Goals
+## 🎯 Current Status: Day 3 Complete
 
-- Deep understanding of vector databases (ChromaDB)
-- Semantic search with embeddings
-- LLM integration and prompt engineering
-- Production-ready code practices
+✅ Vector database with semantic search
+✅ PDF document processing pipeline  
+✅ LLM integration (Gemini 2.5 Flash)
+✅ REST API with FastAPI
+✅ Document upload functionality
 
-## What I'm Building
+## 🚀 Quick Start
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-A system that ingests PDF documents and answers questions about them using RAG with source citations.
+# Start the API
+uvicorn day3_api:app --reload
 
-## Tech Stack
+# Upload a document
+curl -X POST http://localhost:8000/upload -F "file=@document.pdf"
 
+# Ask questions
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is this about?"}'
+```
+
+## 📚 API Endpoints
+
+- `POST /upload` - Upload PDF documents
+- `POST /query` - Ask questions, get answers with sources
+- `GET /health` - Health check
+- `GET /docs` - Interactive API documentation
+
+## 🛠️ Tech Stack
+
+- **Backend**: Python, FastAPI
 - **Vector DB**: ChromaDB
-- **LLM**: OpenAI API
+- **LLM**: Google Gemini 2.5 Flash
 - **Document Processing**: pypdf
-- **Language**: Python
+- **Coming Soon**: Docker, Cloud Deployment
 
-## Progress
+## 📈 Progress
 
-- - [x] Week 1 Day 1: ✅ **COMPLETED** - Embeddings & vector databases
-  - Deep understanding of transformers and attention mechanisms
-  - Production-ready code with error handling and logging
-  - Deterministic document IDs using SHA-256 hashing
-- [ ] Week 1 Day 2: 🎯 **NEXT** - Document processing & chunking
-- [ ] Week 1 Day 3: Building retrieval pipeline
-- [ ] Week 1 Day 4: Error handling & logging
-- [ ] Week 1 Day 5: Integration & testing
-
-## Learning Approach
-
-Following a deliberate learning framework - understanding concepts before implementing, documenting progress in LEARNING_LOG.md
+- [x] Day 1: Vector database fundamentals
+- [x] Day 2: Document processing pipeline
+- [x] Day 3: RAG system + API
+- [ ] Day 4: Docker + Deployment
+- [ ] Day 5: Polish + Documentation
 
 ---
 
-**Status**: 🚧 Week 1 Day 1 - Just starting!
+**Learning Project**: Building from first principles to deeply understand RAG systems for AI/ML engineering roles.
