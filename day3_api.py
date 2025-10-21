@@ -9,6 +9,9 @@ import chromadb
 import day3_rag_query
 import day2_document_processing
 import logging
+import tempfile
+import os
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,6 +90,11 @@ class QueryResponse(BaseModel):
     sources : list[str]
     num_chunks_used : int
 
+class UploadResponse(BaseModel):
+    """Response model for /upload endpoint"""
+    filename : str
+    num_chunks : int
+    status : str
 
 @app.post("/query", response_model=QueryResponse)
 def query_documents(request: QueryRequest):
@@ -130,7 +138,69 @@ def query_documents(request: QueryRequest):
     except Exception as e:
         logger.error(f"Query Failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/upload", response_model=UploadResponse)
+async def upload_document(file: UploadFile = File(...)):
+    """
+    Upload and process a PDF document
     
+    Args:
+        file: PDF file upload
+        
+    Returns:
+        UploadResponse with processing results
+        
+    """
+    
+    # YOUR CODE HERE
+    logger.info(f"Received file: {file.filename}")
+
+    if not collection:
+        raise HTTPException(status_code=500, detail="Database not initialised")
+    
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files allowed")
+    
+    content = await file.read()
+
+    if len(content) == 0:
+        raise HTTPException(status_code=400, detail="File is empty")
+    
+    logger.info(f"Processing {file.filename} ({len(content)} bytes)")
+    
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete= False, suffix=".pdf") as temp_file:
+            temp_file.write(content)
+            temp_path = temp_file.name
+
+        logger.info(f"Saved to temp file: {temp_path}")
+
+        num_chunks = day2_document_processing.process_and_store_pdf(
+            pdf_path= temp_path,
+            collection= collection,
+            )
+        
+        logger.info(f"Processed {file.filename} : {num_chunks} chunks")
+
+        return UploadResponse(
+            filename = file.filename,
+            num_chunks= num_chunks,
+            status= "success"
+        )
+        
+    except Exception as e:
+        logger.error(f"Upload Failed: {e}")
+        raise HTTPException(status_code=500, detail= f"Processing failed: {e}")
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+            logger.info("Cleaned up temp file")    
+
+
+
+
 
 if __name__ == "__main__":
     import uvicorn
