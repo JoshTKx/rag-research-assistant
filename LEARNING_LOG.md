@@ -401,3 +401,55 @@ Back through chain → JSON response
 - POST /upload → Upload PDF documents
 - GET /documents → List all documents
 - DELETE /document/{name} → Remove document
+
+
+# Day 4: Docker Containerization & Deployment
+
+## Day 4: Docker Fundamentals (Corrected)
+
+### What is Docker?
+Docker is a containerization platform that packages applications with ALL 
+their dependencies (code, libraries, system tools) into isolated containers. 
+Unlike virtual environments (which only isolate Python packages), containers 
+isolate the entire application stack including OS libraries.
+
+### Why containerization matters:
+1. **Consistency**: Eliminates "works on my machine" - same environment everywhere
+2. **Portability**: Runs identically on any system with Docker (dev → cloud)
+3. **Isolation**: Multiple apps can run on same server without conflicts
+4. **Reproducibility**: Anyone can replicate exact environment with one command
+5. **Deployment simplicity**: Package once, deploy anywhere
+
+### Key concepts:
+- **Image**: Snapshot/template containing app + dependencies (like a recipe)
+- **Container**: Running instance of an image (like a dish made from recipe)
+- **Dockerfile**: Text file with instructions to build an image
+- **Docker Compose**: Tool to run multiple containers together (e.g., API + database)
+
+### Container vs Virtual Machine:
+**VM**: Simulates entire computer (OS, kernel, everything) - Heavy, slow to start
+**Container**: Shares host OS kernel, only packages app + libraries - Light, fast
+
+Containers are isolated sandboxes that:
+- Share the host OS kernel (efficient!)
+- Only include necessary libraries
+- Expose only specific ports for networking
+- Start in seconds vs minutes for VMs
+
+### Container vs Virtual Environment:
+**venv**: Only isolates Python packages, still uses host OS/libraries
+**Container**: Isolates entire stack - Python version, system libs, everything
+
+### For my RAG project:
+Docker will package into one portable image:
+- Specific Python version (3.11)
+- FastAPI + all dependencies
+- ChromaDB with data persistence
+- My application code
+- System libraries pypdf needs
+
+Then I can deploy this exact environment anywhere:
+- My teammate's laptop
+- Google Cloud Run
+- AWS
+- Anywhere with Docker!

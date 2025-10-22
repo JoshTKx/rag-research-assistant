@@ -49,7 +49,7 @@ def query_rag_system(question, collection, n_results =3):
             query_texts = [question],
             n_results = n_results
         )
-        logger.info(f"Retrieved {len(results["ids"][0])} chunks")
+        logger.info(f"Retrieved {len(results['ids'][0])} chunks")
 
         relevant_chunks = []
 
@@ -128,7 +128,7 @@ def format_context(documents, metadatas):
         context = []
 
         for document, metadata in zip(documents, metadatas):
-            page_context = f"Source: {metadata["source"]}, Page {metadata["page_num"]} \n {document} \n\n"
+            page_context = f"Source: {metadata['source']}, Page {metadata['page_num']} \n {document} \n\n"
             context.append(page_context)
 
         context_str = "".join(context)
@@ -159,7 +159,7 @@ def extract_sources(metadatas):
     unique =[]
 
     for s in sources:
-        formatted = f"{s["source"]} (Page {s["page_num"]})"
+        formatted = f"{s['source']} (Page {s['page_num']})"
         if formatted in seen:
             continue
         seen.add(formatted)
@@ -206,7 +206,7 @@ if __name__ == "__main__":
             collection= collection
         )
 
-        print(f"Answer: {reply["answer"]}")
-        print(f"Source: {reply["sources"]}")
+        print(f"Source: {reply['sources']}")
+        print(f"Answer: {reply['answer']}")
         
         # YOUR CODE HERE

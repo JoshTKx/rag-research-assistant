@@ -1,0 +1,50 @@
+# Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+
+# Environment & Secrets
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+*.md
+docs/
+
+# Tests
+test_*.py
+*_test.py
+tests/
+
+# Data (will mount as volume)
+chroma_db/
+*.pdf
+*.txt
+!requirements.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+temp/
+tmp/

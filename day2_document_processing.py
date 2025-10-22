@@ -284,7 +284,7 @@ def process_and_store_pdf(pdf_path, collection, chunk_size=500, overlap=100):
 
     for chunk in chunks:
 
-        unique_string = f"{chunk["source"]}-{chunk["page_num"]}-{chunk["text"][:50]}"
+        unique_string = f"{chunk['source']}-{chunk['page_num']}-{chunk['text'][:50]}"
         doc_id = hashlib.sha256(unique_string.encode()).hexdigest()
 
         ids.append(doc_id)
