@@ -453,3 +453,89 @@ Then I can deploy this exact environment anywhere:
 - Google Cloud Run
 - AWS
 - Anywhere with Docker!
+
+
+## Day 4: Cloud Deployment - Render
+
+### What I Deployed:
+- Containerized RAG API to Render
+- Live URL: https://rag-research-assistant-xyz.onrender.com
+- Platform: Render (free tier)
+- Runtime: Docker container
+
+### Deployment Process:
+1. Pushed code to GitHub
+2. Connected GitHub repo to Render
+3. Configured Docker deployment
+4. Set environment variables (GEMINI_API_KEY)
+5. Render automatically built Dockerfile (1.18GB)
+6. Got live HTTPS URL in ~10 minutes
+
+### What Worked:
+✅ Health endpoint responsive
+✅ API documentation at /docs
+✅ HTTPS enabled automatically
+✅ Environment variables loaded correctly
+✅ FastAPI server running successfully
+✅ Zero cost deployment
+
+### Limitations Discovered:
+❌ No persistent storage (data doesn't persist)
+❌ Spins down after 15 min of inactivity
+❌ 30-second cold start on first request after sleep
+
+### Free Tier Details:
+- 750 hours/month runtime
+- Spins down after 15 min idle
+- Automatic HTTPS
+- Custom domains available
+- **Cost: $0.00 forever** ✅
+
+### Key Learnings:
+- Render simplifies Docker deployment (no registry needed!)
+- Deploys directly from GitHub (CI/CD built-in)
+- Free tier suitable for demos and learning
+- Stateless containers need external storage solution
+- Cold starts acceptable for portfolio projects
+
+### For Production (Future):
+- Upgrade to paid tier ($7/mo) for always-on
+- Use external database for ChromaDB data:
+  - Option 1: Pinecone (managed vector DB)
+  - Option 2: Supabase (PostgreSQL with pgvector)
+  - Option 3: Mount persistent disk
+- Set up GitHub Actions for auto-deployment
+- Add monitoring and alerting
+
+### Render vs Google Cloud Run:
+| Feature | Render Free | GCP Cloud Run |
+|---------|-------------|---------------|
+| Cost | $0/forever | $0 within limits |
+| Setup | No CC needed | Billing required |
+| Cold starts | 30 seconds | Minimal |
+| Deployment | GitHub push | gcloud CLI |
+| Best for | Learning, demos | Production |
+
+### Commands for Future Deployments:
+```bash
+# Render deploys automatically on git push!
+git push origin main
+
+# Or trigger manual deploy in dashboard
+```
+
+### Total Deployment Time: 15 minutes
+### Total Cost: $0.00 ✅
+### Knowledge Gained: Priceless! 🎓
+```
+
+---
+
+## **Step 9: Understanding Render's Free Tier**
+
+### **What Happens with Free Tier:**
+```
+First 15 minutes: ✅ Your API runs
+After 15 min idle: 💤 Container spins down
+Next request: ⏳ 30-second wake up time
+Then: ✅ Fast responses again
