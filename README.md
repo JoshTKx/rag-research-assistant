@@ -272,10 +272,10 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-> **Note when Demoing:**
-> The API is hosted on a free Render tier, which may "sleep" when inactive.
-> - The very first request might take **~30-60 seconds** to "wake up" the service.
-> - After the initial load, all subsequent requests will be fast!
+> [!NOTE]
+> **Heads-up for Demoing**
+> 
+> The API is deployed on a free-tier service that spins down when inactive. Please allow **30-60 seconds** for the first request to "wake up" the server. After that, it will be fast!
 
 **Live Demo:** [https://rag-research-assistant.onrender.com](https://rag-research-assistant.onrender.com)
 
