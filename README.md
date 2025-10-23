@@ -271,7 +271,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-**Live Demo:** Coming soon after deployment!
+**Live Demo:** [https://rag-research-assistant.onrender.com](https://rag-research-assistant.onrender.com)
+
 
 **Status:** Complete MVP - Demonstrates RAG fundamentals and production deployment
 
