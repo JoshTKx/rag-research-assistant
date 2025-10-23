@@ -4,7 +4,7 @@ version: '3.8'
 services:
   rag-api:
     build: .
-    image: rag-api:v1
+    image: rag-api:latest
     container_name: rag-assistant
     ports:
       - "8000:8000"
