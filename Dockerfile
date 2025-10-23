@@ -13,7 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application dode
 COPY src/ ./src/
-#COPY .env .env
 
 # Create ChromaDB directory
 RUN mkdir -p /app/chroma_db
