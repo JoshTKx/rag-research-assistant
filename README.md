@@ -263,6 +263,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 - LinkedIn: [josh-teo](https://linkedin.com/in/josh-teo/)
 
 
+
 ## Acknowledgments
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/)
@@ -272,6 +273,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 ---
 
 **Live Demo:** [https://rag-research-assistant.onrender.com](https://rag-research-assistant.onrender.com)
+
+**API Docs** [https://rag-research-assistant.onrender.com/docs](https://rag-research-assistant.onrender.com/docs)
 
 
 **Status:** Complete MVP - Demonstrates RAG fundamentals and production deployment
